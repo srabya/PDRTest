@@ -107,7 +107,12 @@ namespace PDR.PatientBooking.Service.Tests.DoctorServices
             _doctorService.AddDoctor(request);
 
             //assert
-            _context.Doctor.Should().ContainEquivalentOf(expected, options => options.Excluding(doctor => doctor.Id));
+            //again, this is not an elegant solution
+            //I would probably go with something like this https://docs.microsoft.com/en-us/archive/blogs/ploeh/testing-against-the-current-time
+            //in the long term
+            _context.Doctor.Should().ContainEquivalentOf(expected, options =>
+                options.Using<DateTime>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation)).WhenTypeIs<DateTime>()
+                    .Excluding(doctor => doctor.Id));
         }
 
         [Test]

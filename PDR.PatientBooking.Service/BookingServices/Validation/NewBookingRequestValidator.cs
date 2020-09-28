@@ -7,7 +7,7 @@ using PDR.PatientBooking.Service.Validation;
 
 namespace PDR.PatientBooking.Service.BookingServices.Validation
 {
-    public class NewBookingRequestValidator
+    public class NewBookingRequestValidator : INewBookingRequestValidator
     {
         private readonly PatientBookingContext _context;
 

@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Linq;
 using AutoFixture;
+using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using NUnit.Framework;
@@ -72,6 +74,21 @@ namespace PDR.PatientBooking.Service.Tests.BookingServices
 
             //assert
             _validator.Verify(x => x.ValidateRequest(request), Times.Once);
+        }
+
+        [Test]
+        public void AddBooking_ValidatorFails_ThrowsArgumentException()
+        {
+            //arrange
+            var failedValidationResult = new PdrValidationResult(false, _fixture.Create<string>());
+
+            _validator.Setup(x => x.ValidateRequest(It.IsAny<NewBookingRequest>())).Returns(failedValidationResult);
+
+            //act
+            var exception = Assert.Throws<ArgumentException>(() => _bookingService.AddBooking(_fixture.Create<NewBookingRequest>()));
+
+            //assert
+            exception.Message.Should().Be(failedValidationResult.Errors.First());
         }
     }
 }

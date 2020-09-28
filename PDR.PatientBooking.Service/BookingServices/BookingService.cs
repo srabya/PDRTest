@@ -21,7 +21,13 @@ namespace PDR.PatientBooking.Service.BookingServices
 
         public void AddBooking(NewBookingRequest newBookingRequest)
         {
-            _validator.ValidateRequest(newBookingRequest);
+            var validationResult = _validator.ValidateRequest(newBookingRequest);
+
+            if (!validationResult.PassedValidation)
+            {
+                throw new ArgumentException(validationResult.Errors.First());
+            }
+
             var bookingId = new Guid();
             var bookingStartTime = newBookingRequest.StartTime;
             var bookingEndTime = newBookingRequest.EndTime;

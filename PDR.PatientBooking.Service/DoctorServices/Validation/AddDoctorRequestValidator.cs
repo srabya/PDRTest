@@ -4,6 +4,7 @@ using PDR.PatientBooking.Service.Validation;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using PDR.PatientBooking.Service.Validation.Validators;
 
 namespace PDR.PatientBooking.Service.DoctorServices.Validation
 {
@@ -70,7 +71,7 @@ namespace PDR.PatientBooking.Service.DoctorServices.Validation
         private bool NotValidEmail(AddDoctorRequest request, ref PdrValidationResult result)
         {
 
-            if (!new EmailAddressAttribute().IsValid(request.Email))
+            if (!Email.IsValid(request.Email))
             {
                 result.PassedValidation = false;
                 result.Errors.Add("Email must be a valid email address");

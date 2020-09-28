@@ -71,7 +71,7 @@ namespace PDR.PatientBookingApi.Controllers
         }
 
         [HttpPost("appointment/{identificationNumber}/cancel")]
-        public IActionResult CancelAppointment(long identificationNumber)
+        public IActionResult CancelAppointment(Guid identificationNumber)
         {
             try
             {

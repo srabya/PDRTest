@@ -84,14 +84,14 @@ namespace PDR.PatientBookingApi.Tests.BookingController
         [Test]
         public void CancelAppointment_Delegates_To_Service()
         {
-            long bookingId = 1;
+            Guid bookingId = _fixture.Create<Guid>();
             //arrange
             _bookingController = new Controllers.BookingController(_context, _bookingService.Object);
             //act
             _bookingController.CancelAppointment(bookingId);
 
             //assert
-            _bookingService.Verify(s => s.CancelBooking(1), Times.Once());
+            _bookingService.Verify(s => s.CancelBooking(bookingId), Times.Once());
         }
 
         [Test]
@@ -100,10 +100,10 @@ namespace PDR.PatientBookingApi.Tests.BookingController
             var errorMessage = _fixture.Create<string>();
             //arrange
             _bookingController = new Controllers.BookingController(_context, _bookingService.Object);
-            _bookingService.Setup(s => s.CancelBooking(It.IsAny<long>()))
+            _bookingService.Setup(s => s.CancelBooking(It.IsAny<Guid>()))
                 .Throws(new ArgumentException(errorMessage));
             //act
-            var response = _bookingController.CancelAppointment(_fixture.Create<long>());
+            var response = _bookingController.CancelAppointment(_fixture.Create<Guid>());
 
             //assert
             var result = response as BadRequestObjectResult;
@@ -117,10 +117,10 @@ namespace PDR.PatientBookingApi.Tests.BookingController
             var exception = new Exception();
             //arrange
             _bookingController = new Controllers.BookingController(_context, _bookingService.Object);
-            _bookingService.Setup(s => s.CancelBooking(It.IsAny<long>()))
+            _bookingService.Setup(s => s.CancelBooking(It.IsAny<Guid>()))
                 .Throws(exception);
             //act
-            var response = _bookingController.CancelAppointment(_fixture.Create<long>());
+            var response = _bookingController.CancelAppointment(_fixture.Create<Guid>());
 
             //assert
             var result = response as ObjectResult;

@@ -53,7 +53,7 @@ namespace PDR.PatientBooking.Service.BookingServices
             _context.SaveChanges();
         }
 
-        public void CancelBooking(long identificationNumber)
+        public void CancelBooking(Guid identificationNumber)
         {
             throw new NotImplementedException();
         }

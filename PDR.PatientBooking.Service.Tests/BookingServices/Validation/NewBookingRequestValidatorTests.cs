@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using AutoFixture;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
@@ -62,22 +63,28 @@ namespace PDR.PatientBooking.Service.Tests.BookingServices.Validation
             //assert
             res.PassedValidation.Should().BeTrue();
         }
-        [Test]
-        public void ValidateRequest_DoctorAlreadyBookedAtTheStartTime_ReturnsFailedValidationResult()
+
+
+        [Test, TestCaseSource(typeof(NewBookingRequestValidatorTests), "DoubleBookingTestCases")]
+        public void ValidateRequest_DoctorAlreadyBookedForTheTimeSlot_ReturnsFailedValidationResult(string existingBookingStartTime,
+                                                                                                    string existingBookingEndTime,
+                                                                                                    string newBookingStartTime,
+                                                                                                    string newBookingEndTime)
         {
             //arrange
             //book a doctor
             var existingBooking = _fixture
                 .Build<Order>()
-                .With(x => x.StartTime, DateTime.Now.AddMinutes(15))
-                .With(x => x.EndTime, DateTime.Now.AddMinutes(30))
+                .With(x => x.StartTime, TomorrowAt(existingBookingStartTime))
+                .With(x => x.EndTime, TomorrowAt(existingBookingEndTime))
                 .Create();
 
             _context.Add(existingBooking);
             _context.SaveChanges();
             //setup a booking with the same doctor at the same time
             var request = GetValidRequest();
-            request.StartTime = existingBooking.StartTime;
+            request.StartTime = TomorrowAt(newBookingStartTime);
+            request.EndTime = TomorrowAt(newBookingEndTime);
             request.DoctorId = existingBooking.DoctorId;
 
             //act
@@ -88,36 +95,62 @@ namespace PDR.PatientBooking.Service.Tests.BookingServices.Validation
             res.Errors.Should().Contain("Doctor is already booked for the requested time.");
         }
 
-        [Test]
-        public void ValidateRequest_DoctorAlreadyBookedAtTheEndTime_ReturnsFailedValidationResult()
+        [Test, TestCaseSource(typeof(NewBookingRequestValidatorTests), "ValidBookingTestCases")]
+        public void ValidateRequest_DoctorNotBookedForTheTimeSlot_PassesValidation(string existingBookingStartTime,
+                                                                                                    string existingBookingEndTime,
+                                                                                                    string newBookingStartTime,
+                                                                                                    string newBookingEndTime)
         {
             //arrange
             //book a doctor
             var existingBooking = _fixture
                 .Build<Order>()
-                .With(x => x.StartTime, DateTime.Now.AddMinutes(15))
-                .With(x => x.EndTime, DateTime.Now.AddMinutes(30))
+                .With(x => x.StartTime, TomorrowAt(existingBookingStartTime))
+                .With(x => x.EndTime, TomorrowAt(existingBookingEndTime))
                 .Create();
 
             _context.Add(existingBooking);
             _context.SaveChanges();
             //setup a booking with the same doctor at the same time
             var request = GetValidRequest();
-            request.StartTime = existingBooking.StartTime;
-            request.EndTime = existingBooking.EndTime;
+            request.StartTime = TomorrowAt(newBookingStartTime);
+            request.EndTime = TomorrowAt(newBookingEndTime);
             request.DoctorId = existingBooking.DoctorId;
 
             //act
             var res = _newBookingRequestValidator.ValidateRequest(request);
 
             //assert
-            res.PassedValidation.Should().BeFalse();
-            res.Errors.Should().Contain("Doctor is already booked for the requested time.");
+            res.PassedValidation.Should().BeTrue();
         }
 
         private NewBookingRequest GetValidRequest()
         {
             return _fixture.Create<NewBookingRequest>();
+        }
+
+        private DateTime TomorrowAt(string time)
+        {
+            return DateTime.Parse(time).AddDays(1);
+        }
+        public static IEnumerable DoubleBookingTestCases
+        {
+            get
+            {
+                yield return new TestCaseData("15:15", "15:30", "15:10", "15:25");
+                yield return new TestCaseData("15:15", "15:30", "15:15", "15:30");
+                yield return new TestCaseData("15:15", "15:30", "15:20", "15:35");
+                yield return new TestCaseData("15:15", "15:30", "15:30", "15:45");
+            }
+        }
+
+        public static IEnumerable ValidBookingTestCases
+        {
+            get
+            {
+                yield return new TestCaseData("15:15", "15:30", "15:00", "15:10");
+                yield return new TestCaseData("15:15", "15:30", "15:35", "15:50");
+            }
         }
 
     }

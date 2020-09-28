@@ -30,8 +30,6 @@ namespace PDR.PatientBooking.Service.BookingServices.Validation
 
         private bool BookingInThePast(NewBookingRequest request, ref PdrValidationResult result)
         {
-
-
             var errors = new List<string>();
 
             if (request.StartTime < DateTime.Now)
@@ -52,8 +50,7 @@ namespace PDR.PatientBooking.Service.BookingServices.Validation
             var errors = new List<string>();
 
 
-            if (_context.Order.Any(x => x.DoctorId == request.DoctorId && x.StartTime == request.StartTime) ||
-                _context.Order.Any(x => x.DoctorId == request.DoctorId && x.EndTime == request.EndTime))
+            if (_context.Order.Any(x => x.DoctorId == request.DoctorId && x.StartTime <= request.EndTime && request.StartTime <= x.EndTime))
                 errors.Add("Doctor is already booked for the requested time.");
 
 

@@ -118,5 +118,24 @@ namespace PDR.PatientBooking.Service.Tests.BookingServices
                 Assert.Fail("Was expecting ArgumentException");
             }
         }
+
+        [Test]
+        public void CancelBooking_RemovesBooking()
+        {
+            //arrange
+            var existingBooking = _fixture
+                .Build<Order>()
+                .Create();
+            _context.Order.Add(existingBooking);
+            _context.SaveChanges();
+
+            //act
+            _bookingService.CancelBooking(existingBooking.Id);
+
+            //assert
+
+            var booking = _context.Order.FirstOrDefault(o => o.Id == existingBooking.Id);
+            booking.Should().BeNull();
+        }
     }
 }

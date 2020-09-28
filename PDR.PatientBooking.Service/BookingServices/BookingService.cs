@@ -61,6 +61,9 @@ namespace PDR.PatientBooking.Service.BookingServices
             {
                 throw new ArgumentException("Invalid booking");
             }
+
+            _context.Order.Remove(booking);
+            _context.SaveChanges();
         }
     }
 }

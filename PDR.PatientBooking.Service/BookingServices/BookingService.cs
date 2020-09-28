@@ -52,5 +52,10 @@ namespace PDR.PatientBooking.Service.BookingServices
             _context.Order.AddRange(new List<Order> { myBooking });
             _context.SaveChanges();
         }
+
+        public void CancelBooking(long identificationNumber)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

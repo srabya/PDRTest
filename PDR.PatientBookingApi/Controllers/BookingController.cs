@@ -69,5 +69,12 @@ namespace PDR.PatientBookingApi.Controllers
                 return StatusCode(500, ex);
             }
         }
+
+        [HttpPost("appointment/{identificationNumber}/cancel")]
+        public IActionResult CancelAppointment(long identificationNumber)
+        {
+            _bookingService.CancelBooking(identificationNumber);
+            return StatusCode(200);
+        }
     }
 }

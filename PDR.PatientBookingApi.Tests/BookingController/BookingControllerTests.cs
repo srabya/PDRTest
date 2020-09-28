@@ -80,5 +80,18 @@ namespace PDR.PatientBookingApi.Tests.BookingController
             result.StatusCode.Should().Be(500);
             result.Value.Should().BeEquivalentTo(exception);
         }
+
+        [Test]
+        public void CancelAppointment_Delegates_To_Service()
+        {
+            long bookingId = 1;
+            //arrange
+            _bookingController = new Controllers.BookingController(_context, _bookingService.Object);
+            //act
+            _bookingController.CancelAppointment(bookingId);
+
+            //assert
+            _bookingService.Verify(s => s.CancelBooking(1), Times.Once());
+        }
     }
 }

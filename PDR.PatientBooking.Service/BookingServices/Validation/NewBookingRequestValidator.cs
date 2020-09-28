@@ -52,7 +52,8 @@ namespace PDR.PatientBooking.Service.BookingServices.Validation
             var errors = new List<string>();
 
 
-            if (_context.Order.Any(x => x.DoctorId == request.DoctorId && x.StartTime == request.StartTime))
+            if (_context.Order.Any(x => x.DoctorId == request.DoctorId && x.StartTime == request.StartTime) ||
+                _context.Order.Any(x => x.DoctorId == request.DoctorId && x.EndTime == request.EndTime))
                 errors.Add("Doctor is already booked for the requested time.");
 
 

@@ -88,7 +88,32 @@ namespace PDR.PatientBooking.Service.Tests.BookingServices.Validation
             res.Errors.Should().Contain("Doctor is already booked for the requested time.");
         }
 
+        [Test]
+        public void ValidateRequest_DoctorAlreadyBookedAtTheEndTime_ReturnsFailedValidationResult()
+        {
+            //arrange
+            //book a doctor
+            var existingBooking = _fixture
+                .Build<Order>()
+                .With(x => x.StartTime, DateTime.Now.AddMinutes(15))
+                .With(x => x.EndTime, DateTime.Now.AddMinutes(30))
+                .Create();
 
+            _context.Add(existingBooking);
+            _context.SaveChanges();
+            //setup a booking with the same doctor at the same time
+            var request = GetValidRequest();
+            request.StartTime = existingBooking.StartTime;
+            request.EndTime = existingBooking.EndTime;
+            request.DoctorId = existingBooking.DoctorId;
+
+            //act
+            var res = _newBookingRequestValidator.ValidateRequest(request);
+
+            //assert
+            res.PassedValidation.Should().BeFalse();
+            res.Errors.Should().Contain("Doctor is already booked for the requested time.");
+        }
 
         private NewBookingRequest GetValidRequest()
         {

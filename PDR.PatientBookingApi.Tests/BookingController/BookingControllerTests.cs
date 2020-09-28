@@ -93,5 +93,40 @@ namespace PDR.PatientBookingApi.Tests.BookingController
             //assert
             _bookingService.Verify(s => s.CancelBooking(1), Times.Once());
         }
+
+        [Test]
+        public void CancelAppointment_Returns_BadRequest_For_ArgumentException()
+        {
+            var errorMessage = _fixture.Create<string>();
+            //arrange
+            _bookingController = new Controllers.BookingController(_context, _bookingService.Object);
+            _bookingService.Setup(s => s.CancelBooking(It.IsAny<long>()))
+                .Throws(new ArgumentException(errorMessage));
+            //act
+            var response = _bookingController.CancelAppointment(_fixture.Create<long>());
+
+            //assert
+            var result = response as BadRequestObjectResult;
+            result.Should().NotBeNull();
+            result.Value.Should().Be(errorMessage);
+        }
+
+        [Test]
+        public void CancelAppointment_Returns_500Error_For_UnHandledExceptions()
+        {
+            var exception = new Exception();
+            //arrange
+            _bookingController = new Controllers.BookingController(_context, _bookingService.Object);
+            _bookingService.Setup(s => s.CancelBooking(It.IsAny<long>()))
+                .Throws(exception);
+            //act
+            var response = _bookingController.CancelAppointment(_fixture.Create<long>());
+
+            //assert
+            var result = response as ObjectResult;
+            result.Should().NotBeNull();
+            result.StatusCode.Should().Be(500);
+            result.Value.Should().BeEquivalentTo(exception);
+        }
     }
 }

@@ -1,6 +1,9 @@
-﻿namespace PDR.PatientBooking.Service.BookingServices
+﻿using PDR.PatientBooking.Service.BookingServices.Requests;
+
+namespace PDR.PatientBooking.Service.BookingServices
 {
     public interface IBookingService
     {
+        public void AddBooking(NewBookingRequest newBookingRequest);
     }
 }

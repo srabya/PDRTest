@@ -88,7 +88,7 @@ namespace PDR.PatientBooking.Service.Tests.PatientServices
         }
 
         [Test]
-        public void AddPatient_AddsPatientToContextWithGeneratedId()
+        public void AddPatient_AddsPatientToContext()
         {
             //arrange
             var request = _fixture.Create<AddPatientRequest>();
@@ -109,7 +109,12 @@ namespace PDR.PatientBooking.Service.Tests.PatientServices
             _patientService.AddPatient(request);
 
             //assert
-            _context.Patient.Should().ContainEquivalentOf(expected, options => options.Excluding(patient => patient.Id));
+            _context.Patient.Should().ContainEquivalentOf(expected, options =>
+                //this is not an elegant solution
+                //I would probably go with something like this https://docs.microsoft.com/en-us/archive/blogs/ploeh/testing-against-the-current-time
+                //in the long term
+                options.Using<DateTime>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation)).WhenTypeIs<DateTime>()
+                    .Excluding(patient => patient.Id));
         }
 
         [Test]

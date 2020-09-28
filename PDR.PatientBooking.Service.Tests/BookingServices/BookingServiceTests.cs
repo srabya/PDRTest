@@ -90,5 +90,33 @@ namespace PDR.PatientBooking.Service.Tests.BookingServices
             //assert
             exception.Message.Should().Be(failedValidationResult.Errors.First());
         }
+
+        [Test]
+        public void CancelBooking_InValidBooking_ThrowsArgumentException()
+        {
+            var bookingId = _fixture.Create<Guid>();
+            //arrange
+            var booking = _context.Order.FirstOrDefault(o => o.Id == bookingId);
+            if (booking != null)
+            {
+                _context.Order.Remove(booking);
+                _context.SaveChanges();
+            }
+
+            //act
+            try
+            {
+                _bookingService.CancelBooking(bookingId);
+            }
+            catch (ArgumentException ex)
+            {
+
+                ex.Message.Should().Be("Invalid booking");
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail("Was expecting ArgumentException");
+            }
+        }
     }
 }

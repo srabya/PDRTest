@@ -55,7 +55,12 @@ namespace PDR.PatientBooking.Service.BookingServices
 
         public void CancelBooking(Guid identificationNumber)
         {
-            throw new NotImplementedException();
+            var booking = _context.Order.FirstOrDefault(b => b.Id == identificationNumber);
+
+            if (booking is null)
+            {
+                throw new ArgumentException("Invalid booking");
+            }
         }
     }
 }

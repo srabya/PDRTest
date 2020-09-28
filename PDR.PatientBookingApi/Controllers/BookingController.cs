@@ -55,9 +55,19 @@ namespace PDR.PatientBookingApi.Controllers
         [HttpPost()]
         public IActionResult AddBooking(NewBookingRequest newBookingRequest)
         {
-            _bookingService.AddBooking(newBookingRequest);
-
-            return StatusCode(200);
+            try
+            {
+                _bookingService.AddBooking(newBookingRequest);
+                return StatusCode(200);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex);
+            }
         }
     }
 }

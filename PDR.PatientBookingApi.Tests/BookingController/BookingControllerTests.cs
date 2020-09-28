@@ -6,6 +6,8 @@ using PDR.PatientBooking.Data;
 using PDR.PatientBooking.Service.BookingServices;
 using PDR.PatientBooking.Service.BookingServices.Requests;
 using System;
+using FluentAssertions;
+using Microsoft.AspNetCore.Mvc;
 
 namespace PDR.PatientBookingApi.Tests.BookingController
 {
@@ -42,6 +44,41 @@ namespace PDR.PatientBookingApi.Tests.BookingController
 
             //assert
             _bookingService.Verify(s => s.AddBooking(req), Times.Once());
+        }
+
+        [Test]
+        public void AddBooking_Returns_BadRequest_For_ArgumentException()
+        {
+            var errorMessage = _fixture.Create<string>();
+            //arrange
+            _bookingController = new Controllers.BookingController(_context, _bookingService.Object);
+            _bookingService.Setup(s => s.AddBooking(It.IsAny<NewBookingRequest>()))
+                .Throws(new ArgumentException(errorMessage));
+            //act
+            var response = _bookingController.AddBooking(new NewBookingRequest());
+
+            //assert
+            var result = response as BadRequestObjectResult;
+            result.Should().NotBeNull();
+            result.Value.Should().Be(errorMessage);
+        }
+
+        [Test]
+        public void AddBooking_Returns_500Error_For_UnHandledExceptions()
+        {
+            var exception = new Exception();
+            //arrange
+            _bookingController = new Controllers.BookingController(_context, _bookingService.Object);
+            _bookingService.Setup(s => s.AddBooking(It.IsAny<NewBookingRequest>()))
+                .Throws(exception);
+            //act
+            var response = _bookingController.AddBooking(new NewBookingRequest());
+
+            //assert
+            var result = response as ObjectResult;
+            result.Should().NotBeNull();
+            result.StatusCode.Should().Be(500);
+            result.Value.Should().BeEquivalentTo(exception);
         }
     }
 }

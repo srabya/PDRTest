@@ -70,38 +70,13 @@ namespace PDR.PatientBookingApi.Controllers
                 DoctorId = bookingDoctorId,
                 Patient = bookingPatient,
                 Doctor = bookingDoctor,
-                SurgeryType = (int)bookingSurgeryType
+                SurgeryType = (int) bookingSurgeryType
             };
 
-            _context.Order.AddRange(new List<Order> { myBooking });
+            _context.Order.AddRange(new List<Order> {myBooking});
             _context.SaveChanges();
 
             return StatusCode(200);
-        }
-
-      
-        private static MyOrderResult UpdateLatestBooking(List<Order> bookings2, int i)
-        {
-            MyOrderResult latestBooking;
-            latestBooking = new MyOrderResult();
-            latestBooking.Id = bookings2[i].Id;
-            latestBooking.DoctorId = bookings2[i].DoctorId;
-            latestBooking.StartTime = bookings2[i].StartTime;
-            latestBooking.EndTime = bookings2[i].EndTime;
-            latestBooking.PatientId = bookings2[i].PatientId;
-            latestBooking.SurgeryType = (int)bookings2[i].GetSurgeryType();
-
-            return latestBooking;
-        }
-
-        private class MyOrderResult
-        {
-            public Guid Id { get; set; }
-            public DateTime StartTime { get; set; }
-            public DateTime EndTime { get; set; }
-            public long PatientId { get; set; }
-            public long DoctorId { get; set; }
-            public int SurgeryType { get; set; }
         }
     }
 }
